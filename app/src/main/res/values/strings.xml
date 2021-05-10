@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">gps_tracker</string>
+    <string name="start">Start</string>
 </resources>
