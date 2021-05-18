@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             isOn = false;
             chrono.stop();
+            onOff.setText("Start");
 
             try {
                 FileWriter fw = new FileWriter(myFile,true);
@@ -159,8 +160,9 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             locMan = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+            Intent switchActivityIntent = new Intent(this, ReportActivity.class);
+            startActivity(switchActivityIntent);
         }
     }
 
@@ -266,7 +268,8 @@ public class MainActivity extends AppCompatActivity {
         filename = formattedDate;
         File folder = new File(Environment.getExternalStorageDirectory() +
                 File.separator +  "GPXtracks/");
-        folder.mkdirs();
+        while(!folder.exists()) folder.mkdirs();
+
 
         myFile = new File(Environment.getExternalStorageDirectory()+ File.separator +  "GPXtracks/", filename+".gpx");
         try {

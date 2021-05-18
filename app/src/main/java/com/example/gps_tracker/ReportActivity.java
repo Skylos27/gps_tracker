@@ -1,6 +1,6 @@
 package com.example.gps_tracker;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
-public class ReportActivity{
+public class ReportActivity extends AppCompatActivity {
 }
