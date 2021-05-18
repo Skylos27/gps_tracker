@@ -54,14 +54,18 @@ public class MainActivity extends AppCompatActivity {
     Chronometer chrono;
     TextView lat;
     TextView lon;
+    TextView dis;
     double alti;
     String totaltime;
     String filename;
-    String path;
     public File myFile;
     String formattedDate;
-    Double[] distCalculation;
+    public static Double[][] listPoint;
     Button onOff;
+    Integer i ;
+    private int totDist;
+    private double totDistCalc;
+    Double time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +76,11 @@ public class MainActivity extends AppCompatActivity {
         chrono = findViewById(R.id.chronoMeter);
         lat = findViewById(R.id.latitudeText);
         lon = findViewById(R.id.longitudeText);
+        dis = findViewById(R.id.distanceText);
         onOff = findViewById(R.id.startButton);
     }
 
-    private double distance(double lat1, double lon1, double lat2, double lon2, char unit) {
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = lon1 - lon2;
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
@@ -87,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void totalDistance(){
-
+        if(i>0) totDistCalc += 1000 * distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1]);
+        totDist = (int)totDistCalc;
     }
     //  This function converts decimal degrees to radians
     private double deg2rad(double deg) {
@@ -98,10 +104,8 @@ public class MainActivity extends AppCompatActivity {
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION))
                 requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PackageManager.PERMISSION_GRANTED);
 
-
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_DENIED)
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
-
 
             if (checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_DENIED)
                 requestPermissions(new String[]{Manifest.permission.INTERNET}, PackageManager.PERMISSION_GRANTED);
@@ -119,12 +123,16 @@ public class MainActivity extends AppCompatActivity {
         return (rad * 180.0 / Math.PI);
     }
 
-
     public void recording(View view) {
 
         if(!isOn){
             createGPX();
             timer();
+            time = 0.0;
+            totDist =0;
+            totDistCalc= 0.0;
+            i = 0;
+            listPoint = new Double[100000][3];
             checkMyPermissions(view);
             isOn = true;
             createLocationListener();
@@ -135,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             isOn = false;
             chrono.stop();
+
             try {
                 FileWriter fw = new FileWriter(myFile,true);
                 BufferedWriter bw = new BufferedWriter(fw );
@@ -162,12 +171,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onLocationChanged(Location location) {
 
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                        double alti = location.getAltitude();
+
                         if(isOn) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                            double alti = location.getAltitude();
+                            listPoint[i][0]= latitude;listPoint[i][1]=longitude;listPoint[i][2]=alti;
+                            totalDistance();
+                            Log.i(TAG, "Total distance = " + totDist);
+                            i+=1;
                             lon.setText("Current longitude: " + longitude);
                             lat.setText("Current latitude: " + latitude);
+                            dis.setText("Total distance: "+ totDist);
+                            time+= 1.0;
                         }
 
                         try {
@@ -242,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
         chrono.start();
         totaltime = chrono.toString();
     }
-
+    // create a GPX file
     private void createGPX(){
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
@@ -250,10 +266,9 @@ public class MainActivity extends AppCompatActivity {
         filename = formattedDate;
         File folder = new File(Environment.getExternalStorageDirectory() +
                 File.separator +  "GPXtracks/");
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        myFile = new File(Environment.getExternalStorageDirectory()+File.separator +  "GPXtracks/", filename+".gpx");
+        folder.mkdirs();
+
+        myFile = new File(Environment.getExternalStorageDirectory()+ File.separator +  "GPXtracks/", filename+".gpx");
         try {
             FileWriter fw = new FileWriter(myFile,true);
             BufferedWriter bw = new BufferedWriter(fw);
