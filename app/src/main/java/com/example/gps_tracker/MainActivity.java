@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     TextView lon;
     TextView dis;
     double alti;
-    String totaltime;
+    public static long totaltime;
     String filename;
     public File myFile;
     String formattedDate;
@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
         if(!isOn){
             createGPX();
             timer();
-            time = 0.0;
             totDist =0;
             totDistCalc= 0.0;
             i = 0;
@@ -142,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             isOn = false;
+            totaltime =  (SystemClock.elapsedRealtime() - chrono.getBase())/1000;
             chrono.stop();
             onOff.setText("Start");
 
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
     private void createLocationListener(){
 
             try {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new LocationListener() {
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
 
@@ -180,12 +180,13 @@ public class MainActivity extends AppCompatActivity {
                             double alti = location.getAltitude();
                             listPoint[i][0]= latitude;listPoint[i][1]=longitude;listPoint[i][2]=alti;
                             totalDistance();
-                            Log.i(TAG, "Total distance = " + totDist);
+                            totaltime =  (SystemClock.elapsedRealtime() - chrono.getBase())/1000;
+                            Log.i(TAG, "Total time = " + totaltime);
                             i+=1;
                             lon.setText("Current longitude: " + longitude);
                             lat.setText("Current latitude: " + latitude);
                             dis.setText("Total distance: "+ totDist);
-                            time+= 1.0;
+
                         }
 
                         try {
@@ -258,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
     private void timer(){
         chrono.setBase(SystemClock.elapsedRealtime());
         chrono.start();
-        totaltime = chrono.toString();
+
     }
     // create a GPX file
     private void createGPX(){
