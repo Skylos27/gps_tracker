@@ -30,6 +30,13 @@ public class ReportActivity extends AppCompatActivity {
         minMaxAltTV=findViewById(R.id.minMaxAltTV);
         totalTimeTV = findViewById(R.id.totalTimeTV);
         backButton = findViewById(R.id.returnButton);
+        GraphView.notcleanList = MainActivity.listPoint;
+        GraphView.totaltime = MainActivity.totaltime;
+        GraphView.counter = 0;
+        GraphView.cleanList = new double[(int)MainActivity.totaltime+1][4];
+        GraphView.cleanList();
+
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

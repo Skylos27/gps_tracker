@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     public File myFile;
     String formattedDate;
     public static Double[][] listPoint;
+
     Button onOff;
     public static int i ;
     public static double totDist;
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         df = new DecimalFormat("#.##");
     }
 
-    private double distance(double lat1, double lon1, double lat2, double lon2) {
+    public static double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = lon1 - lon2;
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
@@ -94,15 +95,18 @@ public class MainActivity extends AppCompatActivity {
 
         return (dist);
     }
-
+    public static double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+    public static double rad2deg(double rad) {
+        return (rad * 180.0 / Math.PI);
+    }
     private void totalDistance(){
         if(i>0) totDistCalc += distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1]);
         totDist = totDistCalc;
     }
     //  This function converts decimal degrees to radians
-    private double deg2rad(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
+
     public void checkMyPermissions(View view){
 
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION))
@@ -123,19 +127,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private double rad2deg(double rad) {
-        return (rad * 180.0 / Math.PI);
-    }
+
 
     public void recording(View view) {
 
         if(!isOn){
             createGPX();
+            totaltime = 0;
             timer();
             totDist =0;
             totDistCalc= 0.0;
             i = 0;
-            listPoint = new Double[100000][3];
+            listPoint = new Double[100000][4];
             checkMyPermissions(view);
             isOn = true;
             createLocationListener();
@@ -185,10 +188,12 @@ public class MainActivity extends AppCompatActivity {
                             double alti = location.getAltitude();
                             if (alti > maxAlti) maxAlti = alti;
                             if (alti < minAlti) minAlti = alti;
-                            listPoint[i][0]= latitude;listPoint[i][1]=longitude;listPoint[i][2]=alti;
-                            totalDistance();
                             totaltime =  ((SystemClock.elapsedRealtime() - chrono.getBase())/1000);
-                            Log.i(TAG, "Total time = " + totaltime);
+                            listPoint[i][0]= latitude;listPoint[i][1]=longitude;listPoint[i][2]=alti;listPoint[i][3]=(double)totaltime;
+                            totalDistance();
+
+
+                            Log.i(TAG, "Total time = " + (double)totaltime);
                             i+=1;
                             lon.setText("Current longitude: " + longitude);
                             lat.setText("Current latitude: " + latitude);
