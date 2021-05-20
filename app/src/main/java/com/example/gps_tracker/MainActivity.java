@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -62,10 +63,12 @@ public class MainActivity extends AppCompatActivity {
     String formattedDate;
     public static Double[][] listPoint;
     Button onOff;
-    Integer i ;
-    private int totDist;
+    public static int i ;
+    public static double totDist;
     private double totDistCalc;
-    Double time;
+    DecimalFormat df;
+    public static double maxAlti,minAlti = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         lon = findViewById(R.id.longitudeText);
         dis = findViewById(R.id.distanceText);
         onOff = findViewById(R.id.startButton);
+        df = new DecimalFormat("#.##");
     }
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {
@@ -92,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void totalDistance(){
-        if(i>0) totDistCalc += 1000 * distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1]);
-        totDist = (int)totDistCalc;
+        if(i>0) totDistCalc += distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1]);
+        totDist = totDistCalc;
     }
     //  This function converts decimal degrees to radians
     private double deg2rad(double deg) {
@@ -142,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             isOn = false;
             totaltime =  (SystemClock.elapsedRealtime() - chrono.getBase())/1000;
+            Log.i(TAG, "Total time = " + totaltime);
             chrono.stop();
             onOff.setText("Start");
 
@@ -169,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
     private void createLocationListener(){
 
             try {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, new LocationListener() {
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000,0, new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
 
@@ -178,14 +183,16 @@ public class MainActivity extends AppCompatActivity {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
                             double alti = location.getAltitude();
+                            if (alti > maxAlti) maxAlti = alti;
+                            if (alti < minAlti) minAlti = alti;
                             listPoint[i][0]= latitude;listPoint[i][1]=longitude;listPoint[i][2]=alti;
                             totalDistance();
-                            totaltime =  (SystemClock.elapsedRealtime() - chrono.getBase())/1000;
+                            totaltime =  ((SystemClock.elapsedRealtime() - chrono.getBase())/1000);
                             Log.i(TAG, "Total time = " + totaltime);
                             i+=1;
                             lon.setText("Current longitude: " + longitude);
                             lat.setText("Current latitude: " + latitude);
-                            dis.setText("Total distance: "+ totDist);
+                            dis.setText("Total distance: "+ df.format(totDist)+"km");
 
                         }
 
