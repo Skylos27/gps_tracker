@@ -101,8 +101,11 @@ public class MainActivity extends AppCompatActivity {
     public static double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }
+
     private void totalDistance(){
-        if(i>0) totDistCalc += distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1]);
+        if (i > 0 && distance(listPoint[i - 1][0], listPoint[i - 1][1], listPoint[i][0], listPoint[i][1])<1)
+            totDistCalc += distance(listPoint[i - 1][0], listPoint[i - 1][1], listPoint[i][0], listPoint[i][1]);
+
         totDist = totDistCalc;
     }
     //  This function converts decimal degrees to radians
@@ -147,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         else{
-            isOn = false;
+
             totaltime =  (SystemClock.elapsedRealtime() - chrono.getBase())/1000;
             Log.i(TAG, "Total time = " + totaltime);
             chrono.stop();
@@ -168,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            isOn = false;
             locMan = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
             Intent switchActivityIntent = new Intent(this, ReportActivity.class);
             startActivity(switchActivityIntent);
@@ -177,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     private void createLocationListener(){
 
             try {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000,0, new LocationListener() {
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, (float) 0.5, new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
 
@@ -192,8 +196,9 @@ public class MainActivity extends AppCompatActivity {
                             listPoint[i][0]= latitude;listPoint[i][1]=longitude;listPoint[i][2]=alti;listPoint[i][3]=(double)totaltime;
                             totalDistance();
 
-
+                            if (i>0)Log.i(TAG, "Speed handmade = " + distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1])*3.6*1000);
                             Log.i(TAG, "Total time = " + (double)totaltime);
+                            Log.i(TAG, "Speed get speed = " + location.getSpeed()*3.6);
                             i+=1;
                             lon.setText("Current longitude: " + longitude);
                             lat.setText("Current latitude: " + latitude);

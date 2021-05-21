@@ -103,8 +103,9 @@ public class GraphView extends View {
             averageSpeed(1,canvas);
 
         }
+        // when total time is above 1 min and inferior to 10 min
         else if (totaltime<600 ) {
-            for (int i = 0; i <= totaltime ; i+=20){
+            for (int i = 0; i <= totaltime ; i+=10){
 
                 if (xaxis< contentWidth-50-paddingLeft) {
                      if (i % 300 == 0) {
@@ -119,22 +120,35 @@ public class GraphView extends View {
                     }
 
                 }
-                xaxis += 20* (contentWidth-100-paddingLeft ) / (totaltime);
+                xaxis += 10* (contentWidth-100-paddingLeft ) / (totaltime);
             }
             averageSpeed(10,canvas);
         }
 
-        //TODO: add number drawing
+
         else{
+            int five = 5;
+            int ten = 10;
+            int hour = 0;
             for (int i = 0; i <= totaltime ; i+=300) {
 
                 if (xaxis< contentWidth-50-paddingLeft) {
-                    if (i % 600 == 0) {
-                        canvas.drawLine(100 + xaxis, contentHeight - 50, 100 + xaxis, contentHeight - 60, paint);
-                        //canvas.drawText();
+                    if (i % 3600 == 0) {
+                        canvas.drawLine(100 + xaxis, contentHeight - 50, 100 + xaxis, contentHeight - 70, paint);
+                        canvas.drawText(Integer.toString(ten%60),100 + xaxis-20,contentHeight ,paint);
+                        hour +=1;
                     }
-                    else if (i % 300 == 0)
+                    else if (i % 600 == 0) {
+                        canvas.drawLine(100 + xaxis, contentHeight - 50, 100 + xaxis, contentHeight - 60, paint);
+                        canvas.drawText(Integer.toString(ten%60),100 + xaxis-20,contentHeight ,paint);
+                        ten +=10;
+                    }
+                    else if (i % 300 == 0) {
                         canvas.drawLine(100 + xaxis, contentHeight - 50, 100 + xaxis, contentHeight - 50, paint);
+                        canvas.drawText(Integer.toString(ten%60),100 + xaxis-20,contentHeight ,paint);
+                        five +=10;
+                    }
+
                 }
                 xaxis += 300*(contentWidth-100-paddingLeft ) / (totaltime);
                 averageSpeed(30,canvas);
@@ -180,16 +194,29 @@ public class GraphView extends View {
         double lastx = 100;
         double lasty = contentHeight - 50 - (add * averageSpeedList[0][0]);
         //drawing the curve
-        for (int i = 0; i< averageSpeedList.length-1;i++) {
-            if ( (averageSpeedList[i][0]>0.2 && averageSpeedList[i+1][0]>0.2) ) {//|| (i>0 && averageSpeedList[i-1][0]==0 && averageSpeedList[i][0]==0 && averageSpeedList[i+1][0]==0)
+        for (int i = 0; i< averageSpeedList.length-1;i++) { //
+            if ( (averageSpeedList[i][0]>0.2 && averageSpeedList[i+1][0]>0.2 && averageSpeedList[i][0]< 1100) ) {//|| (i>0 && averageSpeedList[i-1][0]==0 && averageSpeedList[i][0]==0 && averageSpeedList[i+1][0]==0)
                 canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[i][0])), paint);
                 lastx += interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1);
                 lasty = contentHeight - 50 - (add * (int) averageSpeedList[i][0]);
             }
+            else{
+                canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[i-2][0])), paint);
+                lastx += interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1);
+                lasty = contentHeight - 50 - (add * (int) averageSpeedList[i-2][0]);
+//
+            }
         }
 
         //TODO: end the graph when there is still points after the interval
-        //canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[i][0])), paint);
+
+        //if (totaltime%interval>0){
+        //    averageSpeedList[averageSpeedList.length-1][0] = 1000* 3.6* MainActivity.distance(cleanList[(int)((cleanList.length-(totaltime%interval)))][0],cleanList[(int)((cleanList.length-(totaltime%interval)))][1],cleanList[cleanList.length-1][0],cleanList[cleanList.length-1][1])
+        //            /(interval);
+        //    if (1>averageSpeedList[averageSpeedList.length-1][0] && averageSpeedList[averageSpeedList.length-1][0]<10)
+        //    canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + (totaltime%interval) * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[ averageSpeedList.length-1][0])), paint);
+
+        //}//canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[ averageSpeedList.length-1][0])), paint);
 
     }
 
