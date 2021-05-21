@@ -33,7 +33,7 @@ public class ReportActivity extends AppCompatActivity {
         GraphView.notcleanList = MainActivity.listPoint;
         GraphView.totaltime = MainActivity.totaltime;
         GraphView.counter = 0;
-        GraphView.cleanList = new double[(int)MainActivity.totaltime+1][4];
+        GraphView.cleanList = new double[(int)MainActivity.totaltime+1][5];
         GraphView.cleanList();
 
 

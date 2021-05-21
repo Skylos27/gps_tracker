@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             totDist =0;
             totDistCalc= 0.0;
             i = 0;
-            listPoint = new Double[100000][4];
+            listPoint = new Double[100000][5];
             checkMyPermissions(view);
             isOn = true;
             createLocationListener();
@@ -193,10 +193,16 @@ public class MainActivity extends AppCompatActivity {
                             if (alti > maxAlti) maxAlti = alti;
                             if (alti < minAlti) minAlti = alti;
                             totaltime =  ((SystemClock.elapsedRealtime() - chrono.getBase())/1000);
-                            listPoint[i][0]= latitude;listPoint[i][1]=longitude;listPoint[i][2]=alti;listPoint[i][3]=(double)totaltime;
+                            listPoint[i][0]= latitude;
+                            listPoint[i][1]=longitude;
+                            listPoint[i][2]=alti;
+                            listPoint[i][3]=(double)totaltime*1000;
+                            if (i>1 && 1000*(distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1])*3.6)/(listPoint[i][3]-listPoint[i-1][3])<1000)
+                                listPoint[i][4]= 1000*1000*(distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1])*3.6)/(listPoint[i][3]-listPoint[i-1][3]);
+                            else listPoint[i][4] = (double) 0;
                             totalDistance();
 
-                            if (i>0)Log.i(TAG, "Speed handmade = " + distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1])*3.6*1000);
+                            Log.i(TAG, "Speed handmade = " + listPoint[i][4]);
                             Log.i(TAG, "Total time = " + (double)totaltime);
                             Log.i(TAG, "Speed get speed = " + location.getSpeed()*3.6);
                             i+=1;

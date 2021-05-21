@@ -177,35 +177,47 @@ public class GraphView extends View {
         int inter=0;
 
         //computing the average speed between 2 position separate by an interval "i" of time
-        for(int i = 0;i<cleanList.length && inter+interval<cleanList.length;i++){
+        //for(int i = 0;i<cleanList.length && inter+interval<cleanList.length;i++){
+//
+        //    if (i == 0 || cleanList[i][3] > 0) {  // condition to avoid some nosedive
+        //        averageSpeedList[i][0] = 1000* 3.6* MainActivity.distance(cleanList[inter][0],cleanList[inter][1],cleanList[inter+interval][0],cleanList[inter+interval][1])
+        //                /(interval);
+        //        averageSpeedList[i][1]=i*interval;
+        //        inter+= interval;
+        //    }
+        //}
 
-            if (i == 0 || cleanList[i][3] > 0) {  // condition to avoid some nosedive
-                averageSpeedList[i][0] = 1000* 3.6* MainActivity.distance(cleanList[inter][0],cleanList[inter][1],cleanList[inter+interval][0],cleanList[inter+interval][1])
-                        /(interval);
-                averageSpeedList[i][1]=i*interval;
-                inter+= interval;
-            }
-        }
-
-        for (int i = 0 ; i < averageSpeedList.length; i++)Log.i(TAG, "Av speed = " + averageSpeedList[i][0]);
+        for (int i = 0 ; i < cleanList.length; i++)Log.i(TAG, "Av speed = " + cleanList[i][4]);
         for (int i = 0 ; i+interval < cleanList.length; i++)Log.i(TAG, "Distance "+i+" = " + MainActivity.distance(cleanList[i][0],cleanList[i][1],cleanList[i+interval][0],cleanList[i+interval][1]));
 
 
+        //double lastx = 100;
+        //double lasty = contentHeight - 50 - (add * averageSpeedList[0][0]);
+        ////drawing the curve
+        //for (int i = 0; i< averageSpeedList.length-1;i++) { //
+        //    if ( (averageSpeedList[i][0]>0.2 && averageSpeedList[i+1][0]>0.2 && averageSpeedList[i][0]< 1100) ) {//|| (i>0 && averageSpeedList[i-1][0]==0 && averageSpeedList[i][0]==0 && averageSpeedList[i+1][0]==0)
+        //        canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[i][0])), paint);
+        //        lastx += interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1);
+        //        lasty = contentHeight - 50 - (add * (int) averageSpeedList[i][0]);
+        //    }
+        //    else if (i>1){
+        //        canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[i-2][0])), paint);
+        //        lastx += interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1);
+        //        lasty = contentHeight - 50 - (add * (int) averageSpeedList[i-2][0]);
+        //
+        //    }
+        //}
+
+        //test for easiest
         double lastx = 100;
-        double lasty = contentHeight - 50 - (add * averageSpeedList[0][0]);
+        double lasty = contentHeight - 50 - (add * cleanList[0][4]);
         //drawing the curve
-        for (int i = 0; i< averageSpeedList.length-1;i++) { //
-            if ( (averageSpeedList[i][0]>0.2 && averageSpeedList[i+1][0]>0.2 && averageSpeedList[i][0]< 1100) ) {//|| (i>0 && averageSpeedList[i-1][0]==0 && averageSpeedList[i][0]==0 && averageSpeedList[i+1][0]==0)
-                canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[i][0])), paint);
+        for (int i = 0; i+interval< cleanList.length;i+=interval) { //
+
+                canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) cleanList[i][4])), paint);
                 lastx += interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1);
-                lasty = contentHeight - 50 - (add * (int) averageSpeedList[i][0]);
-            }
-            else{
-                canvas.drawLine((float) lastx, (float) lasty, (float) (lastx + interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1)), (float) (contentHeight - 50 - (add * (int) averageSpeedList[i-2][0])), paint);
-                lastx += interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1);
-                lasty = contentHeight - 50 - (add * (int) averageSpeedList[i-2][0]);
-//
-            }
+                lasty = contentHeight - 50 - (add * (int) cleanList[i][4]);
+
         }
 
         //TODO: end the graph when there is still points after the interval
@@ -239,11 +251,12 @@ public class GraphView extends View {
         cleanList[0][3] = notcleanList[test][3];
         counter = 1;
         for (i = test;i < MainActivity.i; i++){
-            if(cleanList[counter-1][3]<notcleanList[i][3] ) { //&& counter<=(int)totaltime
+            if(cleanList[counter-1][3]<notcleanList[i][3] ) {
                 cleanList[counter][0] = notcleanList[i][0];
                 cleanList[counter][1] = notcleanList[i][1];
                 cleanList[counter][2] = notcleanList[i][2];
                 cleanList[counter][3] = notcleanList[i][3];
+                cleanList[counter][4] = notcleanList[i][4];
                 counter+=1;
             }
         }
