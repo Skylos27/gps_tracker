@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ReportActivity extends AppCompatActivity {
     Button backButton;
-    private double averageSpeed = 0;
-    private double totDistance = 0;
+    private double averageSpeed;
+    private double totDistance ;
     private TextView averageSpeedTV;
     private TextView totDistTV;
     private TextView minMaxAltTV;
@@ -25,6 +25,8 @@ public class ReportActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.report_layout);
+        averageSpeed = 0;
+        totDistance = 0;
         averageSpeedTV = findViewById(R.id.averageSpeedTV);
         totDistTV = findViewById(R.id.totalDistanceTV);
         minMaxAltTV=findViewById(R.id.minMaxAltTV);

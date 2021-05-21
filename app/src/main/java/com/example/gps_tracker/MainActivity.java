@@ -1,8 +1,8 @@
 package com.example.gps_tracker;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
+
 
 import android.Manifest;
 import android.content.Context;
@@ -14,17 +14,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
-import android.provider.DocumentsContract;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -36,25 +31,16 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = null;
     private boolean isOn = false;
-    public boolean onSecScreen = false;
     LocationManager locMan;
     double latitude;
     double longitude;
     Chronometer chrono;
-    TextView lat;
-    TextView lon;
+    TextView speedTV;
     TextView dis;
     double alti;
     public static long totaltime;
@@ -62,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     public File myFile;
     String formattedDate;
     public static Double[][] listPoint;
-
+    Context context;
     Button onOff;
     public static int i ;
     public static double totDist;
@@ -75,11 +61,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        context = getApplicationContext();
         locMan = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
         chrono = findViewById(R.id.chronoMeter);
-        lat = findViewById(R.id.latitudeText);
-        lon = findViewById(R.id.longitudeText);
+        speedTV = findViewById(R.id.avSpeed);
         dis = findViewById(R.id.distanceText);
         onOff = findViewById(R.id.startButton);
         df = new DecimalFormat("#.##");
@@ -141,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             totDist =0;
             totDistCalc= 0.0;
             i = 0;
-            listPoint = new Double[100000][5];
+
             checkMyPermissions(view);
             isOn = true;
             createLocationListener();
@@ -154,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
             totaltime =  (SystemClock.elapsedRealtime() - chrono.getBase())/1000;
             Log.i(TAG, "Total time = " + totaltime);
             chrono.stop();
+            speedTV.setText("Current speed: ");
+            dis.setText("Total distance: ");
+            chrono.setText("" +
+                    "00:00");
             onOff.setText("Start");
 
             try {
@@ -179,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createLocationListener(){
-
+        listPoint = new Double[100000][5];
             try {
                 locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, (float) 0.5, new LocationListener() {
                     @Override
@@ -198,17 +187,19 @@ public class MainActivity extends AppCompatActivity {
                             listPoint[i][2]=alti;
                             listPoint[i][3]=(double)totaltime*1000;
                             if (i>1 && 1000*(distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1])*3.6)/(listPoint[i][3]-listPoint[i-1][3])<1000)
-                                listPoint[i][4]= 1000*1000*(distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1])*3.6)/(listPoint[i][3]-listPoint[i-1][3]);
+                                listPoint[i][4]= (double)(1000*1000*(distance(listPoint[i-1][0],listPoint[i-1][1],listPoint[i][0],listPoint[i][1])*3.6)/(listPoint[i][3]-listPoint[i-1][3]));
                             else listPoint[i][4] = (double) 0;
                             totalDistance();
+                            if (i>0 && (listPoint[i][4] != 0)) {
+                                speedTV.setText("Current speed: " + df.format(listPoint[i][4]) + " km/h");
+                            }
+                            dis.setText("Total distance: "+ df.format(totDist)+" km");
 
                             Log.i(TAG, "Speed handmade = " + listPoint[i][4]);
                             Log.i(TAG, "Total time = " + (double)totaltime);
                             Log.i(TAG, "Speed get speed = " + location.getSpeed()*3.6);
                             i+=1;
-                            lon.setText("Current longitude: " + longitude);
-                            lat.setText("Current latitude: " + latitude);
-                            dis.setText("Total distance: "+ df.format(totDist)+"km");
+
 
                         }
 
@@ -238,18 +229,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onProviderEnabled(String provider) {
 
-                        if (provider == LocationManager.GPS_PROVIDER) {
-                            //Show last known.
-                            Location loc = locMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-
-                            if (loc != null) {
-                                //Now if the location is not null just show it.
-                                lat.setText("" + loc.getLatitude());
-                                lon.setText("" + loc.getLongitude());
-                            }//inner if
-
-                        }//outer if
 
                     }//onProviderEnabled()
 
@@ -258,8 +237,8 @@ public class MainActivity extends AppCompatActivity {
 
                         if (provider != LocationManager.GPS_PROVIDER) {
                             //Just show default string.
-                            lat.setText("Currently unavailable");
-                            lon.setText("Currently unavailable");
+                            Toast alert = Toast.makeText(context,"Your GPS provider is disabled",Toast.LENGTH_SHORT);
+                            alert.show();
 
                         }//if
 

@@ -13,15 +13,11 @@
         android:orientation="vertical"
         android:layout_centerInParent="true">
     <TextView
-        android:id="@+id/latitudeText"
+        android:id="@+id/avSpeed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current latitude: " />
-    <TextView
-        android:id="@+id/longitudeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current longitude: " />
+        android:text="Current speed: " />
+
 
         <TextView
             android:id="@+id/distanceText"
