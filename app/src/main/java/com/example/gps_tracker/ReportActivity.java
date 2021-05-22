@@ -36,7 +36,7 @@ public class ReportActivity extends AppCompatActivity {
         GraphView.totaltime = MainActivity.totaltime;
         GraphView.counter = 0;
         GraphView.cleanList = new double[(int)MainActivity.totaltime+1][5];
-        GraphView.cleanList();
+        if(MainActivity.totaltime>0) GraphView.cleanList(); // avoid a crash if the index of the list is 0
 
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -51,19 +51,22 @@ public class ReportActivity extends AppCompatActivity {
         getTotalTime();
 
     }
-
+    // function which compute the average speed of the full trip
     private void getAverageSpeed(){
         averageSpeed = (double)((1000*MainActivity.totDist)/(MainActivity.totaltime));
         averageSpeedTV.setText("Your average speed was: "+df.format(averageSpeed*3.6)+" km/h");
     }
-
+    // take the total distace from the MainActivity and set the text for the TextView corresponding
     private void getTotalDistance(){
         totDistance = MainActivity.totDist;
         totDistTV.setText("The total distance of your trip is: "+df.format(totDistance)+" km");
     }
+
+    // get the min and the max altitude from MainActivity and show them on screen
     private void getMinMaxAlt(){
         minMaxAltTV.setText("The minimum altitude during your trip is: " + MainActivity.minAlti+" meters\nThe maximum altitude during your trip is: "+MainActivity.maxAlti+" meters");
     }
+    // get the total time of the trip from the MainActivity class ang print them with the adequate format
     private void getTotalTime(){
         long millis = MainActivity.totaltime*1000;
         String hms = String.format("%02d:%02d:%02d",

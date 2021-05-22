@@ -22,7 +22,6 @@ public class GraphView extends View {
     public static Double[][] notcleanList;// = MainActivity.listPoint;
     public static long totaltime;// = MainActivity.totaltime;
     public static double[][] cleanList;
-    public static double[][] averageSpeedList;
 
 
     public GraphView(Context context) {
@@ -78,14 +77,14 @@ public class GraphView extends View {
         canvas.drawLine(100, contentHeight-50, contentWidth-50, contentHeight-50, paint);
         int yaxis = 0;
         int xaxis = 0;
-        // y axis construct
+        // y axis constructor
         for (int i = 0; i <= 10 ; i++){
             canvas.drawLine(100, contentHeight-50-yaxis, 110, contentHeight-50-yaxis, paint);
             if (i>0) canvas.drawText(Integer.toString(i),20 ,contentHeight-50-yaxis ,paint);
             yaxis += (contentHeight-100)/11;
         }
         int legensNumb = 0;
-        // x axis construction
+        // x axis constructor
         if (totaltime <60) {
             for (int i = 0; i <= totaltime ; i++){
 
@@ -125,7 +124,7 @@ public class GraphView extends View {
             averageSpeed(10,canvas);
         }
 
-
+        // if superior to 10 min
         else{
             int five = 5;
             int ten = 10;
@@ -152,8 +151,6 @@ public class GraphView extends View {
             }
 
         }
-
-
         invalidateTextPaintAndMeasurements();
 
 
@@ -165,19 +162,18 @@ public class GraphView extends View {
         paint.setColor(Color.RED);
         paint.setStrokeWidth(10);
 
-        averageSpeedList = new double[cleanList.length][2];
         int paddingLeft = getPaddingLeft();
         int contentWidth = getWidth() - 2*paddingLeft;
         int contentHeight = getHeight() - 2*paddingLeft;
         int add = (contentHeight-100)/11;
 
 
+        for (int i = 0 ; i < MainActivity.i; i++)Log.i(TAG, "Not clean = " + notcleanList[i][4]);
+        for (int i = 0 ; i < cleanList.length; i++)Log.i(TAG, "Clean = " + cleanList[i][4]);
+        //for (int i = 0 ; i+interval < cleanList.length-1; i++)Log.i(TAG, "Distance "+i+" = " + MainActivity.distance(cleanList[i][0],cleanList[i][1],cleanList[i+interval][0],cleanList[i+interval][1]));
 
-        for (int i = 0 ; i < cleanList.length; i++)Log.i(TAG, "Av speed = " + cleanList[i][4]);
-        for (int i = 0 ; i+interval < cleanList.length-1; i++)Log.i(TAG, "Distance "+i+" = " + MainActivity.distance(cleanList[i][0],cleanList[i][1],cleanList[i+interval][0],cleanList[i+interval][1]));
 
-
-        //test for easiest
+        // the the first point of the curve
         double lastx = 100;
         double lasty = contentHeight - 50 - (add * cleanList[0][4]);
         //drawing the curve
@@ -192,23 +188,16 @@ public class GraphView extends View {
                 lastx += interval * (contentWidth - 100 - paddingLeft) / (totaltime + 1);
                 lasty = contentHeight - 50 - (add * cleanList[i][4]);
             }
-
         }
-
-
     }
 
-
-
-
-
-
+    // get the MainActivity class list and filter it into a new one that is used to draw the curve
     public static void cleanList(){
 
         counter = 0;
         int test = 0;
         int i;
-        while (notcleanList[test][3]!=0 ) {
+        while (notcleanList[test][3] != 0 ) {
                 test+=1;
         }
         cleanList[0][0] = notcleanList[test][0];

@@ -68,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
         dis = findViewById(R.id.distanceText);
         onOff = findViewById(R.id.startButton);
         df = new DecimalFormat("#.##");
+        createLocationListener();
     }
-
+    // calculate the distance between 2 coordinates
     public static double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = lon1 - lon2;
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
@@ -80,21 +81,22 @@ public class MainActivity extends AppCompatActivity {
 
         return (dist);
     }
+    //  This function converts decimal degrees to radians
     public static double deg2rad(double deg) {
         return (deg * Math.PI / 180.0);
     }
+    //  This function converts radians to decimal degrees
     public static double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }
-
+    // compute the total distance of the trip with the coordinates that we have
     private void totalDistance(){
         if (i > 0 && distance(listPoint[i - 1][0], listPoint[i - 1][1], listPoint[i][0], listPoint[i][1])<1)
             totDistCalc += distance(listPoint[i - 1][0], listPoint[i - 1][1], listPoint[i][0], listPoint[i][1]);
 
         totDist = totDistCalc;
     }
-    //  This function converts decimal degrees to radians
-
+    // check all the permissions needed at the start of the app
     public void checkMyPermissions(View view){
 
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION))
@@ -118,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void recording(View view) {
-
+        // start the recording
         if(!isOn){
             createGPX();
             totaltime = 0;
@@ -129,11 +131,12 @@ public class MainActivity extends AppCompatActivity {
 
             checkMyPermissions(view);
             isOn = true;
-            createLocationListener();
+            //createLocationListener();
             onOff.setText("Stop");
 
 
         }
+        //stop the recording and switch to the second activity
         else{
 
             totaltime =  (SystemClock.elapsedRealtime() - chrono.getBase())/1000;
@@ -141,10 +144,9 @@ public class MainActivity extends AppCompatActivity {
             chrono.stop();
             speedTV.setText("Current speed: ");
             dis.setText("Total distance: ");
-            chrono.setText("" +
-                    "00:00");
+            chrono.setText("00:00");
             onOff.setText("Start");
-
+            // write the end of the GPX file
             try {
                 FileWriter fw = new FileWriter(myFile,true);
                 BufferedWriter bw = new BufferedWriter(fw );
@@ -162,19 +164,27 @@ public class MainActivity extends AppCompatActivity {
             }
             isOn = false;
             locMan = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
-            Intent switchActivityIntent = new Intent(this, ReportActivity.class);
-            startActivity(switchActivityIntent);
+            if (i>0)
+            {
+                Intent switchActivityIntent = new Intent(this, ReportActivity.class);
+                startActivity(switchActivityIntent);
+            }
+            else{
+                Toast alert = Toast.makeText(context,"Your trip is really too short",Toast.LENGTH_LONG);
+                alert.show();
+            }
         }
     }
 
     private void createLocationListener(){
-        listPoint = new Double[100000][5];
+        // the worst thing of the project but at least that can last for 11 days ...
+        listPoint = new Double[1000000][5];
             try {
-                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, (float) 0.5, new LocationListener() {
+                locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, (float) 0, new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
 
-
+                        // create the list with coordinates, atitude, time and average speed
                         if(isOn) {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
@@ -197,13 +207,11 @@ public class MainActivity extends AppCompatActivity {
 
                             Log.i(TAG, "Speed handmade = " + listPoint[i][4]);
                             Log.i(TAG, "Total time = " + (double)totaltime);
-                            Log.i(TAG, "Speed get speed = " + location.getSpeed()*3.6);
                             i+=1;
-
-
                         }
 
                         try {
+                            // write the coordinates on the DPX file
                             if (isOn) {
                                 FileWriter fw = new FileWriter(myFile, true);
                                 BufferedWriter bw = new BufferedWriter(fw);
@@ -275,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         myFile = new File(Environment.getExternalStorageDirectory()+ File.separator +  "GPXtracks/", filename+".gpx");
+        //write the header
         try {
             FileWriter fw = new FileWriter(myFile,true);
             BufferedWriter bw = new BufferedWriter(fw);
